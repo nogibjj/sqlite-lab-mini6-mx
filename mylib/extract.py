@@ -14,8 +14,8 @@ def extract(
     url2="""
     https://raw.githubusercontent.com/fivethirtyeight/WNBA-stats/master/wnba-team-elo-ratings.csv
     """,
-    file_path="db/WNBA_stats.csv",
-    file_path2="db/WNBA_elo.csv",
+    file_path="db/wnba-player-stats.csv",
+    file_path2="db/wnba-team-elo-ratings.csv",
     directory="db",
 ):
     """Extract a url to a file path"""
