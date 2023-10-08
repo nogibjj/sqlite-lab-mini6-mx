@@ -9,14 +9,14 @@ import pandas as pd
 
 def extract(
     url="""
-    https://raw.githubusercontent.com/fivethirtyeight/data/master/womens-world-cup-predictions/wwc-matches-20150602-093000.csv?raw=true
+    https://raw.githubusercontent.com/fivethirtyeight/WNBA-stats/master/wnba-player-stats.csv
     """,
     url2="""
-    https://raw.githubusercontent.com/fivethirtyeight/data/master/womens-world-cup-predictions/wwc-matches-20150705-205539.csv?raw=true
+    https://raw.githubusercontent.com/fivethirtyeight/WNBA-stats/master/wnba-team-elo-ratings.csv
     """,
-    file_path="data/wwc_matches_1.csv",
-    file_path2="data/wwc_matches_2.csv",
-    directory="data",
+    file_path="db/WNBA_stats.csv",
+    file_path2="db/WNBA_elo.csv",
+    directory="db",
 ):
     """Extract a url to a file path"""
     if not os.path.exists(directory):
