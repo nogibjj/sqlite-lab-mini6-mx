@@ -1,26 +1,100 @@
 """
-Transforms and Loads data into the local SQLite3 database
-Example:
-,general name,count_products,ingred_FPro,avg_FPro_products,avg_distance_root,ingred_normalization_term,semantic_tree_name,semantic_tree_node
+Transforms and Loads data into the Azure Databricks database
 """
-import sqlite3
-import csv
 import os
+from databricks import sql
+import pandas as pd
+from dotenv import load_dotenv
 
-#load the csv file and insert into a new sqlite3 database
-def load(dataset="/workspaces/sqlite-lab/data/GroceryDB_IgFPro.csv"):
-    """"Transforms and Loads data into the local SQLite3 database"""
 
-    #prints the full working directory and path
-    print(os.getcwd())
-    payload = csv.reader(open(dataset, newline=''), delimiter=',')
-    conn = sqlite3.connect('GroceryDB.db')
-    c = conn.cursor()
-    c.execute("DROP TABLE IF EXISTS GroceryDB")
-    c.execute("CREATE TABLE GroceryDB (id,general_name, count_products, ingred_FPro, avg_FPro_products, avg_distance_root, ingred_normalization_term, semantic_tree_name, semantic_tree_node)")
-    #insert
-    c.executemany("INSERT INTO GroceryDB VALUES (?,?, ?, ?, ?, ?, ?, ?, ?)", payload)
-    conn.commit()
-    conn.close()
-    return "GroceryDB.db"
+# load the csv file and insert into databricks
+def load(dataset="db/wnba-player-stats.csv","db/wnba-team-elo-ratings.csv"):
+    """Transforms and Loads data into the Azure Databricks database"""
+    df = pd.read_csv(dataset, delimiter=",", skiprows=1)
+    df2 = pd.read_csv(dataset2, delimiter=",", skiprows=1)
+    load_dotenv()
+    server_h = os.getenv("SERVER_HOSTNAME")
+    access_token = os.getenv("ACCESS_TOKEN")
+    http_path = os.getenv("HTTP_PATH")
+    with sql.connect(
+        server_hostname=server_h,
+        http_path=http_path,
+        access_token=access_token,
+    ) as connection:
+        c = connection.cursor()
+        c.execute("SHOW TABLES FROM default LIKE 'wnba-player-stats*'")
+        result = c.fetchall()
+        if not result:
+            c.execute(
+                """
+                CREATE TABLE IF NOT EXISTS MatchesDB_ONE (
+                    id int,
+                    player_ID,
+                    Player,
+                    year_ID,
+                    Age,
+                    Tm,
+                    tm_gms,
+                    Tm_Net_Rtg,
+                    Pos,
+                    G,
+                    MP,
+                    MP_pct,
+                    PER,
+                    TS_pct,
+                    ThrPAr,
+                    FTr,
+                    ORB_pct,
+                    TRB_pct,
+                    AST_pct,
+                    STL_pct,
+                    BLK_pct,
+                    TOV_pct,
+                    USG_pct,
+                    OWS,
+                    DWS,
+                    WS,
+                    WS40,
+                    Composite_Rating,
+                    Wins_Generated
+                )
+            """
+            )
+            # insert
+            for _, row in df.iterrows():
+                convert = (_,) + tuple(row)
+                print(convert)
+                c.execute(f"INSERT INTO MatchesDB_ONE VALUES {convert}")
+        c.execute("SHOW TABLES FROM default LIKE 'wnba-team-elo-ratings*'")
+        result = c.fetchall()
+        # c.execute("DROP TABLE IF EXISTS WWC_MATCHES_2_DB")
+        if not result:
+            c.execute(
+                """
+                CREATE TABLE IF NOT EXISTS WWC_MATCHES_2_DB (
+                    id int,
+                    season,
+                    date,
+                    team1,
+                    team2,
+                    name1,
+                    name2,
+                    neutral,
+                    playoff,
+                    score1,
+                    score2,
+                    elo1_pre,
+                    elo2_pre,
+                    elo1_post,
+                    elo2_post,
+                    prob1,is_home1
+                )
+                """
+            )
+            for _, row in df2.iterrows():
+                convert = (_,) + tuple(row)
+                c.execute(f"INSERT INTO WWC_MATCHES_2_DB VALUES {convert}")
+        c.close()
+
+    return "success"
 
