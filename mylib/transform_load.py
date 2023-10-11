@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 
 # load the csv file and insert into databricks
-def load(dataset="db/wnba-player-stats.csv","db/wnba-team-elo-ratings.csv"):
+def load(dataset="db/wnba-player-stats.csv",dataset2="db/wnba-team-elo-ratings.csv"):
     """Transforms and Loads data into the Azure Databricks database"""
     df = pd.read_csv(dataset, delimiter=",", skiprows=1)
     df2 = pd.read_csv(dataset2, delimiter=",", skiprows=1)
